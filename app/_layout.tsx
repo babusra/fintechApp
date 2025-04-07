@@ -1,13 +1,13 @@
 import Colors from '@/constants/Colors';
-import { ClerkProvider } from '@clerk/clerk-expo';
+import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import { Ionicons } from '@expo/vector-icons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
-import { Link, Stack, useRouter } from 'expo-router';
+import { Link, Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, Text } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 import * as SecureStore from 'expo-secure-store';
@@ -41,6 +41,8 @@ const InitialLayout = () => {
   });
 
   const router = useRouter();
+  const { isLoaded, isSignedIn } = useAuth();
+  const segments = useSegments();
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
@@ -52,8 +54,21 @@ const InitialLayout = () => {
     }
   }, [loaded]);
 
-  if (!loaded) {
-    return null;
+  useEffect(() => {
+    console.log('isSignedIn', isSignedIn);
+    if (!isLoaded) return;
+
+    const inAuthGroup = segments[0] === '(authenticated)';
+
+    if (isSignedIn && !inAuthGroup) {
+      router.replace('/(authenticated)/(tabs)/home');
+    } else if (!isSignedIn) {
+      router.replace('/');
+    }
+  }, [isSignedIn]);
+
+  if (!loaded || !isLoaded) {
+    return <Text>Loading...</Text>;
   }
 
   return (
@@ -106,13 +121,36 @@ const InitialLayout = () => {
         name='help'
         options={{ title: 'Help', presentation: 'modal' }}
       />
+      <Stack.Screen
+        name='verify/[phone]'
+        options={{
+          title: '',
+          headerBackTitle: '',
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: Colors.background,
+          },
+          headerLeft: () => (
+            <TouchableOpacity onPress={router.back}>
+              <Ionicons name='arrow-back' size={34} color={Colors.dark} />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name='(authenticated)/(tabs)'
+        options={{ headerShown: false }}
+      />
     </Stack>
   );
 };
 
 const RootLayoutNav = () => {
   return (
-    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY!} tokenCache={tokenCache}>
+    <ClerkProvider
+      publishableKey={CLERK_PUBLISHABLE_KEY!}
+      tokenCache={tokenCache}
+    >
       <GestureHandlerRootView style={{ flex: 1 }}>
         <StatusBar style='light' />
         <InitialLayout />
