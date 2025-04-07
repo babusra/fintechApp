@@ -11,6 +11,7 @@ import { TouchableOpacity, Text } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 import * as SecureStore from 'expo-secure-store';
+import { PaperProvider } from 'react-native-paper';
 
 //Cache the Clerk JWT
 
@@ -147,6 +148,7 @@ const InitialLayout = () => {
 
 const RootLayoutNav = () => {
   return (
+    <PaperProvider>
     <ClerkProvider
       publishableKey={CLERK_PUBLISHABLE_KEY!}
       tokenCache={tokenCache}
@@ -156,6 +158,8 @@ const RootLayoutNav = () => {
         <InitialLayout />
       </GestureHandlerRootView>
     </ClerkProvider>
+  </PaperProvider>
+  
   );
 };
 
