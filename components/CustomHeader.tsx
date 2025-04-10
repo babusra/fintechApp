@@ -34,6 +34,12 @@ const CustomHeader = () => {
             placeholderTextColor={Colors.dark}
           />
         </View>
+        <View style={styles.circle}>
+          <Ionicons name='stats-chart' size={20} color={Colors.dark} />
+        </View>
+        <View style={styles.circle}>
+          <Ionicons name='card' size={20} color={Colors.dark} />
+        </View>
       </View>
     </BlurView>
   );
@@ -76,5 +82,13 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     paddingLeft: 0,
     color: Colors.dark,
+  },
+  circle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.lightGray,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
